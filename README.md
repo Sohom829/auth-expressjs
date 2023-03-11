@@ -1,2 +1,3 @@
 # auth
- Auth.
+
+An simple authentication API.
