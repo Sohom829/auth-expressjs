@@ -5,7 +5,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const dbURL = process.env.MONGO_URL;
 const User = require("./models/user.model");
-const md5 = require("md5");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 mongoose
   .connect(dbURL)
@@ -27,14 +28,16 @@ app.get("/", (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-    const newUser = new User({
-      email: req.body.email,
-      password: md5(req.body.password),
-    });
-    await newUser.save();
-    res.status(201).json({
-      message: "New user created.",
-      newUser,
+    bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {
+      const newUser = new User({
+        email: req.body.email,
+        password: hash,
+      });
+      await newUser.save();
+      res.status(201).json({
+        message: "New user created.",
+        newUser,
+      });
     });
   } catch (error) {
     res.status(500).json(error.message);
@@ -44,10 +47,14 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const email = req.body.email;
-    const password = md5(req.body.password);
+    const password = req.body.password;
     const user = await User.findOne({ email: email });
-    if (user && user.password === password) {
-      res.status(200).json({ message: "User is logged in." });
+    if (user) {
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (result === true) {
+          res.status(200).json({ message: "User is logged in." });
+        }
+      });
     } else {
       res.status(400).json({
         message: "User not found.",
