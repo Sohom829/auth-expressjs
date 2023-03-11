@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 const dbURL = process.env.MONGO_URL;
+const User = require("./models/user.model");
 
 mongoose
   .connect(dbURL)
@@ -23,17 +24,34 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/./views/index.html");
 });
 
-app.post("/register", (req, res) => {
-  const { email, password } = req.body;
-  res.status(201).json({
-    email: email,
-    password: password,
-    message: "User is created.",
-  });
+app.post("/register", async (req, res) => {
+  try {
+    const newUser = new User(req.body);
+    await newUser.save();
+    res.status(201).json({
+      message: "New user created.",
+      newUser,
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
 });
 
-app.post("/login", (req, res) => {
-  res.status(200).json({ message: "User is logged in." });
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email });
+    if (user && user.password === password) {
+      res.status(200).json({ message: "User is logged in." });
+    } else {
+      res.status(400).json({
+        message: "User not found.",
+        status: 400,
+      });
+    }
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
 });
 
 app.use((req, res, next) => {
