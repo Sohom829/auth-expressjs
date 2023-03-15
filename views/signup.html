@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup</title>
+  </head>
+  <body>
+    <h1>Signup page! For Idk</h1>
+    <form class="LOGIN!" action="/register" method="post">
+      <div class="form-items">
+        <label for="email">Email Pls...</label>
+        <input type="email" required name="email" id="email" />
+        <label for="password">Password!</label>
+        <input type="password" required name="password" id="password" />
+        <label for="username">Username!</label>
+        <input type="text" required name="username" id="username" />
+        <button type="submit">signup!</button>
+      </div>
+    </form>
+
+    <script>
+      const passwordElement = document.getElementById("psw");
+
+      passwordElement.addEventListener("input", function () {
+        const password = passwordElement.value;
+        const passwordLength = password.length;
+
+        const containsEightLetters = passwordLength >= 8;
+        const containsCapitalLetter = /[A-Z]/.test(password);
+        const containsSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
+          password
+        );
+        const containsNumber = /\d/.test(password);
+
+        let errorMessage = "";
+        if (!containsEightLetters) {
+          errorMessage = "Password must contain at least 8 characters.";
+        } else if (!containsCapitalLetter) {
+          errorMessage = "Password must contain at least 1 capital letter.";
+        } else if (!containsSymbol) {
+          errorMessage = "Password must contain at least 1 symbol.";
+        } else if (!containsNumber) {
+          errorMessage = "Password must contain at least 1 number.";
+        }
+
+        let errorElement = document.getElementById("pswError");
+        if (!errorElement) {
+          errorElement = document.createElement("div");
+          errorElement.id = "pswError";
+          passwordElement.parentNode.insertBefore(
+            errorElement,
+            passwordElement.nextSibling
+          );
+        }
+        errorElement.innerHTML = errorMessage;
+      });
+    </script>
+  </body>
+</html>
